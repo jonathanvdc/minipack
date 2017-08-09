@@ -121,18 +121,12 @@
     <Reference Include="Flame.DSProject">
       <HintPath>..\packages\Flame.Front.0.9.17\lib\net45\Flame.DSProject.dll</HintPath>
     </Reference>
-    <Reference Include="Flame.DSProject">
-      <HintPath>..\packages\Flame.Front.0.9.17\lib\net45\Flame.DSProject.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DebSourceSubprogram.cs" />
-    <Compile Include="ExecutableSpec.cs" />
-    <Compile Include="FileSpec.cs" />
-    <Compile Include="PackageDescription.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Subprogram.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -140,5 +134,11 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libminipack\libminipack.csproj">
+      <Project>{0798AC9D-F8DC-4A5D-A462-BC7786F8E925}</Project>
+      <Name>libminipack</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

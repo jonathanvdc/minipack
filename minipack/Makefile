@@ -1,6 +1,7 @@
 files = \
 	*.cs \
-	Properties/*.cs
+	Properties/*.cs \
+	../libminipack/bin/flo/libminipack.flo
 
 libs = \
 	../packages/Mono.Cecil.0.9.6.4/lib/net45/Mono.Cecil.dll \
