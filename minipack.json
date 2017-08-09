@@ -1,0 +1,15 @@
+{
+    "name" : "minipack",
+    "targets" : {
+        "deb" : {
+            "control" : "packaging/deb/partial-control"
+        }
+    },
+    "files" : [
+        { "src" : "minipack/bin/clr/minipack.exe", "target" : "lib/mono/minipack/minipack.exe" },
+        { "src" : "minipack/bin/clr/*.dll", "target" : "lib/mono/minipack/" }
+    ],
+    "executables" : [
+        { "name" : "minipack", "environment" : "mono", "file" : "lib/mono/minipack/minipack.exe" }
+    ]
+}
