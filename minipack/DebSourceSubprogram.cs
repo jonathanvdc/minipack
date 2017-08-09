@@ -38,6 +38,8 @@ namespace Minipack
                 return;
             }
 
+            string sourcePath = options.SourcePaths[0].ToString();
+
             string version = options.GetOption<string>("version", null);
             if (string.IsNullOrWhiteSpace(version))
             {
@@ -58,6 +60,8 @@ namespace Minipack
                 LogMissingMandatoryOption(log, "-o");
                 return;
             }
+
+            var packageDesc = PackageDescription.Read(sourcePath);
 
             throw new NotImplementedException();
         }
