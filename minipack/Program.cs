@@ -80,8 +80,12 @@ namespace Minipack
                                 pair.Key),
 
                             new MarkupNode(
+                                NodeConstants.DimNodeType,
+                                " " + pair.Value.Usage),
+
+                            new MarkupNode(
                                 NodeConstants.TextNodeType,
-                                " " + pair.Value.Usage + " -- " + pair.Value.Description)
+                                " -- " + pair.Value.Description)
                         }));
             }
             var subprogList = ListExtensions.Instance.CreateList(listItems);
