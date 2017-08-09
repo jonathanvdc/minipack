@@ -82,7 +82,7 @@ namespace Minipack
             {
                 foreach (var item in sourceFiles)
                 {
-                    results[item] = Path.Combine(Target, item);
+                    results[item] = Path.Combine(Target, Path.GetFileName(item));
                 }
             }
             else
@@ -105,13 +105,13 @@ namespace Minipack
             var targetMapping = GetTargetMapping(sourceDirectory);
             foreach (var key in targetMapping.Keys)
             {
-                string targetFilePath = targetMapping[key];
+                string targetFilePath = Path.Combine(targetDirectory, targetMapping[key]);
                 string targetFileDirPath = Path.GetDirectoryName(targetFilePath);
                 if (!Directory.Exists(targetFileDirPath))
                 {
                     Directory.CreateDirectory(targetFileDirPath);
                 }
-                File.Copy(key, Path.Combine(targetDirectory, targetFilePath));
+                File.Copy(key, targetFilePath, true);
             }
         }
     }
