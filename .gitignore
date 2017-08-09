@@ -1,0 +1,21 @@
+
+# Debug databases
+*.pdb
+*.mdb
+
+# vshost
+*.vshost.*
+
+# Output
+obj/
+bin/
+*.userprefs
+
+# .fuse_hidden files
+.fuse_hidden*
+
+# Log files
+*.log
+
+# 'packages' folder
+packages/
