@@ -71,6 +71,20 @@ namespace Minipack
         public List<ExecutableSpec> Executables { get; set; }
 
         /// <summary>
+        /// Copies the files in this package description from the source
+        /// directory to the target directory.
+        /// </summary>
+        /// <param name="sourceDirectory">A path to the source directory.</param>
+        /// <param name="targetDirectoryPath">A path to the target directory.</param>
+        public void CopyFilesToTarget(string sourceDirectory, string targetDirectory)
+        {
+            foreach (var file in Files)
+            {
+                file.CopyToTarget(sourceDirectory, targetDirectory);
+            }
+        }
+
+        /// <summary>
         /// Reads the package description at the given file.
         /// </summary>
         /// <param name="path">A path to the file to read the package description from.</param>

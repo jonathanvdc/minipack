@@ -53,44 +53,66 @@ namespace Minipack
         /// <summary>
         /// Gets all source files specified by this file spec.
         /// </summary>
+        /// <param name="sourceDirectory">A path to the source directory.</param>
         /// <returns>The source files.</returns>
-        public IReadOnlyList<string> GetSourceFiles()
+        public IReadOnlyList<string> GetSourceFiles(string sourceDirectory)
         {
-            return Directory.GetFiles(Environment.CurrentDirectory, Source);
+            return Directory.GetFiles(sourceDirectory, Source);
         }
 
         /// <summary>
         /// Creates a mapping of source files to their respective target files.
         /// </summary>
+        /// <param name="sourceDirectory">A path to the source directory.</param>
         /// <returns>A mapping of source files to their respective target files.</returns>
-        public IReadOnlyDictionary<string, string> GetTargetMapping()
+        public IReadOnlyDictionary<string, string> GetTargetMapping(string sourceDirectory)
         {
-            return GetTargetMapping(GetSourceFiles());
+            return GetTargetMapping(GetSourceFiles(sourceDirectory));
         }
 
         /// <summary>
         /// Creates a mapping of source files to their respective target files.
         /// </summary>
-        /// <param name="SourceFiles">The source files to map to target files.</param>
+        /// <param name="sourceFiles">The source files to map to target files.</param>
         /// <returns>A mapping of source files to their respective target files.</returns>
-        public IReadOnlyDictionary<string, string> GetTargetMapping(IEnumerable<string> SourceFiles)
+        public IReadOnlyDictionary<string, string> GetTargetMapping(IEnumerable<string> sourceFiles)
         {
             var results = new Dictionary<string, string>();
             if (TargetIsDirectory)
             {
-                foreach (var item in SourceFiles)
+                foreach (var item in sourceFiles)
                 {
                     results[item] = Path.Combine(Target, item);
                 }
             }
             else
             {
-                foreach (var item in SourceFiles)
+                foreach (var item in sourceFiles)
                 {
                     results[item] = Target;
                 }
             }
             return results;
+        }
+
+        /// <summary>
+        /// Copies the source files of this file spec to the target directory.
+        /// </summary>
+        /// <param name="sourceDirectory">A path to the source directory.</param>
+        /// <param name="targetDirectory">A path to the target directory.</param>
+        public void CopyToTarget(string sourceDirectory, string targetDirectory)
+        {
+            var targetMapping = GetTargetMapping(sourceDirectory);
+            foreach (var key in targetMapping.Keys)
+            {
+                string targetFilePath = targetMapping[key];
+                string targetFileDirPath = Path.GetDirectoryName(targetFilePath);
+                if (!Directory.Exists(targetFileDirPath))
+                {
+                    Directory.CreateDirectory(targetFileDirPath);
+                }
+                File.Copy(key, Path.Combine(targetDirectory, targetFilePath));
+            }
         }
     }
 }
