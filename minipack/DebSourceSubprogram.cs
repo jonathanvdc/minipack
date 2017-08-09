@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Flame.Compiler;
 using Flame.Front.Options;
 
@@ -64,16 +65,49 @@ namespace Minipack
 
             var packageDesc = PackageDescription.Read(sourcePath);
 
-            PopulateTarget(packageDesc, version, revision, outputDir);
+            Dictionary<string, string> debConfig = packageDesc.GetConfigOrNull("deb");
+            if (debConfig == null)
+            {
+                LogMissingDebTarget(log, sourcePath);
+                return;
+            }
+
+            string partialControlPath;
+            if (!debConfig.TryGetValue("control", out partialControlPath))
+            {
+                LogMissingControlPath(log, sourcePath);
+                return;
+            }
+
+            var partialControl = File.ReadAllText(partialControlPath);
+
+            PopulateTarget(packageDesc, partialControl, version, revision, outputDir);
         }
 
         private static void PopulateTarget(
             PackageDescription package,
+            string partialControl,
             string version,
             string revision,
             string targetDirectory)
         {
+            // Create the DEBIAN/control file.
+            var controlBuilder = new StringBuilder();
+            controlBuilder.Append("Package: " + package.Name + "\n");
+            controlBuilder.Append("Version: " + version + "-" + revision + "\n");
+            controlBuilder.Append(partialControl);
+
+            var debianDirPath = Path.Combine(targetDirectory, "DEBIAN");
+
+            Directory.CreateDirectory(debianDirPath);
+
+            File.WriteAllText(Path.Combine(debianDirPath, "control"), controlBuilder.ToString());
+
+            // Copy files to the usr directory.
             package.CopyFilesToTarget(Environment.CurrentDirectory, Path.Combine(targetDirectory, "usr"));
+
+            // Instantiate executables.
+            
         }
 
         private static void LogMissingMandatoryOption(ICompilerLog log, string optionName)
@@ -104,6 +138,28 @@ namespace Minipack
                         "no input file",
                         "exactly one input file must be provided."));
             }
+        }
+
+        private static void LogMissingDebTarget(ICompilerLog log, string sourcePath)
+        {
+            log.LogError(
+                new LogEntry(
+                    "missing 'deb' target",
+                    string.Format(
+                        "debian packages are generated based on the properties " +
+                        "of the 'deb' target, but the file at '{0}' doesn't have one.",
+                        sourcePath)));
+        }
+
+        private static void LogMissingControlPath(ICompilerLog log, string sourcePath)
+        {
+            log.LogError(
+                new LogEntry(
+                    "missing 'control' property",
+                    string.Format(
+                        "the 'deb' target of the file at '{0}' must have a 'control' " +
+                        "property that points to a partial control file.",
+                        sourcePath)));
         }
     }
 }

@@ -107,10 +107,7 @@ namespace Minipack
             {
                 string targetFilePath = Path.Combine(targetDirectory, targetMapping[key]);
                 string targetFileDirPath = Path.GetDirectoryName(targetFilePath);
-                if (!Directory.Exists(targetFileDirPath))
-                {
-                    Directory.CreateDirectory(targetFileDirPath);
-                }
+                Directory.CreateDirectory(targetFileDirPath);
                 File.Copy(key, targetFilePath, true);
             }
         }

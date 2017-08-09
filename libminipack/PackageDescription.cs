@@ -71,6 +71,20 @@ namespace Minipack
         public List<ExecutableSpec> Executables { get; set; }
 
         /// <summary>
+        /// Gets the target configuration with the given name or <c>null</c> if that configuration
+        /// doesn't exist.
+        /// </summary>
+        /// <param name="targetName">The name of the target configuration to find.</param>
+        /// <returns>The target configuration with the given name.</returns>
+        public Dictionary<string, string> GetConfigOrNull(string targetName)
+        {
+            if (TargetConfigs.ContainsKey(targetName))
+                return TargetConfigs[targetName];
+            else
+                return null;
+        }
+
+        /// <summary>
         /// Copies the files in this package description from the source
         /// directory to the target directory.
         /// </summary>
