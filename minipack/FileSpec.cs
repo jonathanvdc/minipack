@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
 
 namespace Minipack
@@ -39,5 +42,55 @@ namespace Minipack
         [JsonProperty("target")]
         [JsonRequired]
         public string Target { get; set; }
+
+        /// <summary>
+        /// Tells if this file spec's target represents a directory.
+        /// </summary>
+        /// <returns><c>true</c> if the target is a directory; otherwise, <c>false</c>.</returns>
+        /// <remarks>All targets that end in '/' are considered directories.</remarks>
+        public bool TargetIsDirectory => Target.EndsWith("/");
+
+        /// <summary>
+        /// Gets all source files specified by this file spec.
+        /// </summary>
+        /// <returns>The source files.</returns>
+        public IReadOnlyList<string> GetSourceFiles()
+        {
+            return Directory.GetFiles(Environment.CurrentDirectory, Source);
+        }
+
+        /// <summary>
+        /// Creates a mapping of source files to their respective target files.
+        /// </summary>
+        /// <returns>A mapping of source files to their respective target files.</returns>
+        public IReadOnlyDictionary<string, string> GetTargetMapping()
+        {
+            return GetTargetMapping(GetSourceFiles());
+        }
+
+        /// <summary>
+        /// Creates a mapping of source files to their respective target files.
+        /// </summary>
+        /// <param name="SourceFiles">The source files to map to target files.</param>
+        /// <returns>A mapping of source files to their respective target files.</returns>
+        public IReadOnlyDictionary<string, string> GetTargetMapping(IEnumerable<string> SourceFiles)
+        {
+            var results = new Dictionary<string, string>();
+            if (TargetIsDirectory)
+            {
+                foreach (var item in SourceFiles)
+                {
+                    results[item] = Path.Combine(Target, item);
+                }
+            }
+            else
+            {
+                foreach (var item in SourceFiles)
+                {
+                    results[item] = Target;
+                }
+            }
+            return results;
+        }
     }
 }
