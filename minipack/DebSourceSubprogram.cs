@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Flame.Compiler;
 using Flame.Front.Options;
@@ -72,7 +73,7 @@ namespace Minipack
             string revision,
             string targetDirectory)
         {
-            package.CopyFilesToTarget(Environment.CurrentDirectory, targetDirectory);
+            package.CopyFilesToTarget(Environment.CurrentDirectory, Path.Combine(targetDirectory, "usr"));
         }
 
         private static void LogMissingMandatoryOption(ICompilerLog log, string optionName)
