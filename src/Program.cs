@@ -54,7 +54,7 @@ namespace Minipack
 
         private static void ReportNoInput(ConsoleLog log)
         {
-            log.Console.Write("minipack: ", log.ContrastForegroundColor);
+            ConsoleExtensions.Write(log.Console, "minipack: ", log.ContrastForegroundColor);
             log.WriteEntry("nothing to do", log.WarningStyle, "no sub-program was specified");
             DescribeSubprograms(log);
         }
