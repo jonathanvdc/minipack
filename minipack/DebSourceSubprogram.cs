@@ -63,7 +63,16 @@ namespace Minipack
 
             var packageDesc = PackageDescription.Read(sourcePath);
 
-            throw new NotImplementedException();
+            PopulateTarget(packageDesc, version, revision, outputDir);
+        }
+
+        private static void PopulateTarget(
+            PackageDescription package,
+            string version,
+            string revision,
+            string targetDirectory)
+        {
+            package.CopyFilesToTarget(Environment.CurrentDirectory, targetDirectory);
         }
 
         private static void LogMissingMandatoryOption(ICompilerLog log, string optionName)
