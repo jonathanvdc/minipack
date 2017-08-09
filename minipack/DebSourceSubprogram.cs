@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -41,6 +42,7 @@ namespace Minipack
             }
 
             string sourcePath = options.SourcePaths[0].ToString();
+            var packageDesc = PackageDescription.Read(sourcePath);
 
             string version = options.GetOption<string>("version", null);
             if (string.IsNullOrWhiteSpace(version))
@@ -59,11 +61,14 @@ namespace Minipack
             string outputDir = options.GetOption<string>("o", null);
             if (string.IsNullOrWhiteSpace(outputDir))
             {
-                LogMissingMandatoryOption(log, "-o");
-                return;
+                outputDir = packageDesc.Name + "_" + version + "-" + revision;
             }
 
-            var packageDesc = PackageDescription.Read(sourcePath);
+            string sourceDir = options.GetOption<string>("source-dir", null);
+            if (string.IsNullOrWhiteSpace(sourceDir))
+            {
+                sourceDir = Environment.CurrentDirectory;
+            }
 
             Dictionary<string, string> debConfig = packageDesc.GetConfigOrNull("deb");
             if (debConfig == null)
@@ -79,16 +84,25 @@ namespace Minipack
                 return;
             }
 
-            var partialControl = File.ReadAllText(partialControlPath);
+            var partialControl = File.ReadAllText(Path.Combine(sourceDir, partialControlPath));
 
-            PopulateTarget(packageDesc, partialControl, version, revision, outputDir);
+            PopulateTarget(
+                log,
+                packageDesc,
+                partialControl,
+                version,
+                revision,
+                sourceDir,
+                outputDir);
         }
 
         private static void PopulateTarget(
+            ICompilerLog log,
             PackageDescription package,
             string partialControl,
             string version,
             string revision,
+            string sourceDirectory,
             string targetDirectory)
         {
             // Create the DEBIAN/control file.
@@ -104,10 +118,72 @@ namespace Minipack
             File.WriteAllText(Path.Combine(debianDirPath, "control"), controlBuilder.ToString());
 
             // Copy files to the usr directory.
-            package.CopyFilesToTarget(Environment.CurrentDirectory, Path.Combine(targetDirectory, "usr"));
+            var usrDirectory = Path.Combine(targetDirectory, "usr");
+            package.CopyFilesToTarget(sourceDirectory, usrDirectory);
 
             // Instantiate executables.
-            
+            foreach (var exe in package.Executables)
+            {
+                InstantiateExecutable(log, exe, sourceDirectory, usrDirectory);
+            }
+        }
+
+        private static readonly Dictionary<string, Action<ICompilerLog, ExecutableSpec, string, string>> executableHandlers =
+            new Dictionary<string, Action<ICompilerLog, ExecutableSpec, string, string>>(StringComparer.OrdinalIgnoreCase)
+        {
+            { "mono", InstantiateMonoExecutable }
+        };
+
+        private static void InstantiateExecutable(
+            ICompilerLog log, ExecutableSpec spec, string sourceDirectory, string usrDirectory)
+        {
+            if (executableHandlers.ContainsKey(spec.Environment))
+            {
+                executableHandlers[spec.Environment](log, spec, sourceDirectory, usrDirectory);
+            }
+            else
+            {
+                log.LogError(
+                    new LogEntry(
+                        "unknown executable environment",
+                        string.Format(
+                            "deb-source does not understand executables that use the '{0}' environment.",
+                            spec.Environment)));
+            }
+        }
+
+        private static void InstantiateMonoExecutable(
+            ICompilerLog log, ExecutableSpec spec, string sourceDirectory, string usrDirectory)
+        {
+            // We can run safely mono executables by generating a wrapper script. Such
+            // a script looks like this:
+            //
+            //     #!/bin/sh
+            //     exec /usr/bin/mono $MONO_OPTIONS /usr/file-path "$@"
+            //
+
+            var script = new StringBuilder();
+            script.Append("#!/bin/sh\n");
+            script.Append("exec /usr/bin/mono $MONO_OPTIONS /");
+            script.Append(Path.Combine("usr", spec.File));
+            script.Append(" \"$@\"\n");
+
+            string scriptDir = Path.Combine(usrDirectory, "bin");
+            string scriptPath = Path.Combine(scriptDir, spec.Name);
+            Directory.CreateDirectory(scriptDir);
+            File.WriteAllText(scriptPath, script.ToString());
+
+            // Make our script executable.
+            MakeExecutable(scriptPath);
+        }
+
+        private static void MakeExecutable(string path)
+        {
+            var processDesc = new ProcessStartInfo("chmod", "+x " + Path.GetFullPath(path));
+            processDesc.RedirectStandardError = true;
+            processDesc.UseShellExecute = false;
+            var process = Process.Start(processDesc);
+            process.WaitForExit();
         }
 
         private static void LogMissingMandatoryOption(ICompilerLog log, string optionName)
