@@ -70,21 +70,24 @@ namespace Minipack
                 sourceDir = Environment.CurrentDirectory;
             }
 
+            string partialControl = null;
             Dictionary<string, string> debConfig = packageDesc.GetConfigOrNull("deb");
             if (debConfig == null)
             {
                 LogMissingDebTarget(log, sourcePath);
-                return;
             }
-
-            string partialControlPath;
-            if (!debConfig.TryGetValue("control", out partialControlPath))
+            else
             {
-                LogMissingControlPath(log, sourcePath);
-                return;
+                string partialControlPath;
+                if (!debConfig.TryGetValue("control", out partialControlPath))
+                {
+                    LogMissingControlPath(log, sourcePath);
+                }
+                else
+                {
+                    partialControl = File.ReadAllText(Path.Combine(sourceDir, partialControlPath));
+                }
             }
-
-            var partialControl = File.ReadAllText(Path.Combine(sourceDir, partialControlPath));
 
             PopulateTarget(
                 log,
@@ -105,17 +108,20 @@ namespace Minipack
             string sourceDirectory,
             string targetDirectory)
         {
-            // Create the DEBIAN/control file.
-            var controlBuilder = new StringBuilder();
-            controlBuilder.Append("Package: " + package.Name + "\n");
-            controlBuilder.Append("Version: " + version + "-" + revision + "\n");
-            controlBuilder.Append(partialControl);
+            if (partialControl != null)
+            {
+                // Create the DEBIAN/control file.
+                var controlBuilder = new StringBuilder();
+                controlBuilder.Append("Package: " + package.Name + "\n");
+                controlBuilder.Append("Version: " + version + "-" + revision + "\n");
+                controlBuilder.Append(partialControl);
 
-            var debianDirPath = Path.Combine(targetDirectory, "DEBIAN");
+                var debianDirPath = Path.Combine(targetDirectory, "DEBIAN");
 
-            Directory.CreateDirectory(debianDirPath);
+                Directory.CreateDirectory(debianDirPath);
 
-            File.WriteAllText(Path.Combine(debianDirPath, "control"), controlBuilder.ToString());
+                File.WriteAllText(Path.Combine(debianDirPath, "control"), controlBuilder.ToString());
+            }
 
             // Copy files to the usr directory.
             var usrDirectory = Path.Combine(targetDirectory, "usr");
@@ -239,7 +245,7 @@ namespace Minipack
 
         private static void LogMissingDebTarget(ICompilerLog log, string sourcePath)
         {
-            log.LogError(
+            log.LogWarning(
                 new LogEntry(
                     "missing 'deb' target",
                     string.Format(
@@ -250,11 +256,11 @@ namespace Minipack
 
         private static void LogMissingControlPath(ICompilerLog log, string sourcePath)
         {
-            log.LogError(
+            log.LogWarning(
                 new LogEntry(
                     "missing 'control' property",
                     string.Format(
-                        "the 'deb' target of the file at '{0}' must have a 'control' " +
+                        "the 'deb' target of the file at '{0}' doesn't have 'control' " +
                         "property that points to a partial control file.",
                         sourcePath)));
         }
