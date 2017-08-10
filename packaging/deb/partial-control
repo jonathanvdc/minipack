@@ -4,7 +4,7 @@ Depends: mono-runtime (>= 3.0), libmono-corlib4.5-cil (>= 4.0.0), libmono-system
 Section: cli-mono
 Priority: optional
 Homepage: https://github.com/jonathanvdc/minipack
-Description: a tool to simplify package creation
+Description: tool to simplify package creation
  minipack makes it easier to create simple Debian packages.
  It uses a JSON description of what a package should look like
  to gather a package's sources and neatly package them.
