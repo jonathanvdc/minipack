@@ -55,13 +55,13 @@ namespace Minipack
         private static void ReportNoInput(ConsoleLog log)
         {
             ConsoleExtensions.Write(log.Console, "minipack: ", log.ContrastForegroundColor);
-            log.WriteEntry("nothing to do", log.WarningStyle, "no sub-program was specified");
+            log.WriteEntry("nothing to do", log.WarningStyle, "no command was specified");
             DescribeSubprograms(log);
         }
 
         private static void ReportUnknownSubprogram(string name, ConsoleLog log)
         {
-            log.LogError(new LogEntry("unknown subprogram", string.Format("'{0}' is not a known sub-program.", name)));
+            log.LogError(new LogEntry("unknown command", string.Format("'{0}' is not a known command.", name)));
             DescribeSubprograms(log);
         }
 
@@ -89,7 +89,7 @@ namespace Minipack
                         }));
             }
             var subprogList = ListExtensions.Instance.CreateList(listItems);
-            log.LogMessage(new LogEntry("minipack subprograms", subprogList));
+            log.LogMessage(new LogEntry("minipack commands", subprogList));
         }
     }
 }
