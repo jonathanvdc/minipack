@@ -15,6 +15,10 @@ install:
   - export PATH=$PATH:$(pwd)/ecsc/src/ecsc/bin/Release
 
 script:
+  # Update these variables when appropriate.
+  - export MINIPACK_VERSION=0.1.0
+  - export MINIPACK_REVISION=$TRAVIS_BUILD_NUMBER
+
   # Restore NuGet packages.
   - nuget restore minipack.sln
   # Build the project with msbuild.
@@ -22,12 +26,25 @@ script:
   # Build the project with ecsc.
   - make all
   # Create a deb tree and package it.
-  - export MINIPACK_VERSION=0.1.0
-  - export MINIPACK_REVISION=1
-  - mono ./minipack/bin/clr/minipack.exe deb-tree minipack.json --version $MINIPACK_VERSION --revision $MINIPACK_REVISION -o minipack_${MINIPACK_VERSION}-${MINIPACK_REVISION}
-  - find minipack_${MINIPACK_VERSION}-${MINIPACK_REVISION}/usr | xargs sudo chown root:root
-  - dpkg-deb --build minipack_${MINIPACK_VERSION}-${MINIPACK_REVISION}
+  - export DEB_DIR_NAME=minipack_${MINIPACK_VERSION}-${MINIPACK_REVISION}
+  - export DEB_NAME=${DEB_DIR_NAME}.deb
+  - export ZIP_NAME=${DEB_DIR_NAME}.zip
+  - mono ./minipack/bin/clr/minipack.exe deb-tree minipack.json --version $MINIPACK_VERSION --revision $MINIPACK_REVISION -o $DEB_DIR_NAME
+  - sudo chown -R root:root $DEB_DIR_NAME
+  - dpkg-deb --build $DEB_DIR_NAME
   # Install the deb.
-  - sudo dpkg -i minipack_${MINIPACK_VERSION}-${MINIPACK_REVISION}.deb
+  - sudo dpkg -i $DEB_NAME
   # Create a zippable directory.
   - minipack files minipack.json -o minipack-bin
+  # Zip that directory.
+  - zip -r $ZIP_NAME minipack-bin
+
+deploy:
+  provider: releases
+  api_key:
+    secure: gl5CBrOsdhd0yEDtmq4YR+twjfGHlJZT1QgRfecaTXsHBhwNp/0opPwJBxz2lr4jwHMoPPTn6aSdg8C1SoVGJ1GQ1f7k8jC2fEzBUCO+2X9sywGHxC8zb1G4jE19ra9AZfIKmbXa8oV/Ee+RATuOBohTr05OBQnMzIONuKldxgxTMx91tYzcE6HABB9vUZFdmnSnvFFuZHFUWE72WQDgtg0S76pdXZFWG61R11M9e9ha+rJtnF2hKwtO6ushcKJMwnwbfebu1t3cuVbcEJgV85VhZiU20x2LtgxnG/6p/1leX5wB6VonqIRqD5L4ZN58RCqyDNbrF8m1PWnw+JAWkgVRVR6ryrfLZZ9tZHZldNPjE7J/rgVwnGINHi7NdsgRrUpi+BroHm2HOVSqbvEjZVDMTP+wmzfWNK/pJ+aigV/sCDcT/WrLAOXmvMJKoPC0sIylfbisR3YuCvEXm+w9lxfwaVlGgLRjRUpqcfptBQJ+jmadXvAPgjRLG6COBhlr+ciZPwE5jh1gH55kQ17pITtLwa0BwxdVm8eoPIIi1I9gLBTsf1TNcmfPKgt/irvmPemFIZhirkWwPUM1FSm+7At88M0oCRlsnK2NefuVL96R50uZkW2QPojaQlDIH173Ro/aPWx8zEKhLn5c+v+c+Y+OfQVxen5q3kKPs7d2TBw=
+  file:
+    - "${DEB_NAME}"
+    - "${ZIP_NAME}"
+  on:
+    repo: jonathanvdc/minipack
