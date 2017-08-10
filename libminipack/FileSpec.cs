@@ -100,7 +100,25 @@ namespace Minipack
         /// </summary>
         /// <param name="sourceDirectory">A path to the source directory.</param>
         /// <param name="targetDirectory">A path to the target directory.</param>
-        public void CopyToTarget(string sourceDirectory, string targetDirectory)
+        public void CopyToTarget(
+            string sourceDirectory,
+            string targetDirectory)
+        {
+            CopyToTarget(sourceDirectory, targetDirectory, Nop);
+        }
+
+        /// <summary>
+        /// Copies the source files of this file spec to the target directory.
+        /// </summary>
+        /// <param name="sourceDirectory">A path to the source directory.</param>
+        /// <param name="targetDirectory">A path to the target directory.</param>
+        /// <param name="afterCopy">
+        /// A callback that is run on the (source path, target path) pair of each copied file.
+        /// </param>
+        public void CopyToTarget(
+            string sourceDirectory,
+            string targetDirectory,
+            Action<string, string> afterCopy)
         {
             var targetMapping = GetTargetMapping(sourceDirectory);
             foreach (var key in targetMapping.Keys)
@@ -109,7 +127,13 @@ namespace Minipack
                 string targetFileDirPath = Path.GetDirectoryName(targetFilePath);
                 Directory.CreateDirectory(targetFileDirPath);
                 File.Copy(key, targetFilePath, true);
+                afterCopy(key, targetFilePath);
             }
+        }
+
+        private static void Nop(string arg1, string arg2)
+        {
+
         }
     }
 }

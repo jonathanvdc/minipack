@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
@@ -90,7 +91,29 @@ namespace Minipack
         /// </summary>
         /// <param name="sourceDirectory">A path to the source directory.</param>
         /// <param name="targetDirectoryPath">A path to the target directory.</param>
-        public void CopyFilesToTarget(string sourceDirectory, string targetDirectory)
+        /// <param name="afterCopy">
+        /// A callback that is run on the (source path, target path) pair of each copied file.
+        /// </param>
+        public void CopyFilesToTarget(
+            string sourceDirectory,
+            string targetDirectory,
+            Action<string, string> afterCopy)
+        {
+            foreach (var file in Files)
+            {
+                file.CopyToTarget(sourceDirectory, targetDirectory, afterCopy);
+            }
+        }
+
+        /// <summary>
+        /// Copies the files in this package description from the source
+        /// directory to the target directory.
+        /// </summary>
+        /// <param name="sourceDirectory">A path to the source directory.</param>
+        /// <param name="targetDirectoryPath">A path to the target directory.</param>
+        public void CopyFilesToTarget(
+            string sourceDirectory,
+            string targetDirectory)
         {
             foreach (var file in Files)
             {
