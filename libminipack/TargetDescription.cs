@@ -50,11 +50,21 @@ namespace Minipack
         }
 
         /// <summary>
-        /// Expands a path relative to the target directory.
+        /// Expands a path relative to the target directory to an absolute path.
         /// </summary>
         /// <param name="relativePath">The path to expand.</param>
         /// <returns>The expanded path.</returns>
         public string ExpandTargetPath(string relativePath)
+        {
+            return Path.Combine(RootTargetDirectory, ExpandTargetPathRelative(relativePath));
+        }
+
+        /// <summary>
+        /// Expands a path relative to the target directory to a relative path.
+        /// </summary>
+        /// <param name="relativePath">The path to expand.</param>
+        /// <returns>The expanded path.</returns>
+        public string ExpandTargetPathRelative(string relativePath)
         {
             var expandedPath = new StringBuilder();
             int spanStart = 0;
@@ -84,7 +94,7 @@ namespace Minipack
                 }
             }
             expandedPath.Append(relativePath, spanStart, relativePath.Length - spanStart);
-            return Path.Combine(RootTargetDirectory, expandedPath.ToString());
+            return expandedPath.ToString();
         }
 
         /// <summary>

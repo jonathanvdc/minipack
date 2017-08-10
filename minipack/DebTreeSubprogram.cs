@@ -132,27 +132,29 @@ namespace Minipack
             var namedPaths = new Dictionary<string, string>();
             namedPaths[TargetDescription.ExecutableDirectoryPathName] = Path.Combine("lib", package.Name);
 
-            package.CopyFilesToTarget(sourceDirectory, new TargetDescription(usrDirectory, namedPaths), AfterCopyFile);
+            var targetDesc = new TargetDescription(usrDirectory, namedPaths);
+
+            package.CopyFilesToTarget(sourceDirectory, targetDesc, AfterCopyFile);
 
             // Instantiate executables.
             foreach (var exe in package.Executables)
             {
-                InstantiateExecutable(log, exe, sourceDirectory, usrDirectory);
+                InstantiateExecutable(log, exe, sourceDirectory, targetDesc);
             }
         }
 
-        private static readonly Dictionary<string, Action<ICompilerLog, ExecutableSpec, string, string>> executableHandlers =
-            new Dictionary<string, Action<ICompilerLog, ExecutableSpec, string, string>>(StringComparer.OrdinalIgnoreCase)
+        private static readonly Dictionary<string, Action<ICompilerLog, ExecutableSpec, string, TargetDescription>> executableHandlers =
+            new Dictionary<string, Action<ICompilerLog, ExecutableSpec, string, TargetDescription>>(StringComparer.OrdinalIgnoreCase)
         {
             { "mono", InstantiateMonoExecutable }
         };
 
         private static void InstantiateExecutable(
-            ICompilerLog log, ExecutableSpec spec, string sourceDirectory, string usrDirectory)
+            ICompilerLog log, ExecutableSpec spec, string sourceDirectory, TargetDescription targetDesc)
         {
             if (executableHandlers.ContainsKey(spec.Environment))
             {
-                executableHandlers[spec.Environment](log, spec, sourceDirectory, usrDirectory);
+                executableHandlers[spec.Environment](log, spec, sourceDirectory, targetDesc);
             }
             else
             {
@@ -166,7 +168,7 @@ namespace Minipack
         }
 
         private static void InstantiateMonoExecutable(
-            ICompilerLog log, ExecutableSpec spec, string sourceDirectory, string usrDirectory)
+            ICompilerLog log, ExecutableSpec spec, string sourceDirectory, TargetDescription targetDesc)
         {
             // We can run safely mono executables by generating a wrapper script. Such
             // a script looks like this:
@@ -178,10 +180,10 @@ namespace Minipack
             var script = new StringBuilder();
             script.Append("#!/bin/sh\n");
             script.Append("exec /usr/bin/mono $MONO_OPTIONS /");
-            script.Append(Path.Combine("usr", spec.File));
+            script.Append(Path.Combine("usr", targetDesc.ExpandTargetPathRelative(spec.File)));
             script.Append(" \"$@\"\n");
 
-            string scriptDir = Path.Combine(usrDirectory, "bin");
+            string scriptDir = Path.Combine(targetDesc.RootTargetDirectory, "bin");
             string scriptPath = Path.Combine(scriptDir, spec.Name);
             Directory.CreateDirectory(scriptDir);
             File.WriteAllText(scriptPath, script.ToString());
