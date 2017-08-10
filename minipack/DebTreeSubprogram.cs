@@ -71,21 +71,24 @@ namespace Minipack
             }
 
             string partialControl = null;
-            Dictionary<string, string> debConfig = packageDesc.GetConfigOrNull("deb");
-            if (debConfig == null)
+            if (options.GetFlag("include-control", true))
             {
-                LogMissingDebTarget(log, sourcePath);
-            }
-            else
-            {
-                string partialControlPath;
-                if (!debConfig.TryGetValue("control", out partialControlPath))
+                Dictionary<string, string> debConfig = packageDesc.GetConfigOrNull("deb");
+                if (debConfig == null)
                 {
-                    LogMissingControlPath(log, sourcePath);
+                    LogMissingDebTarget(log, sourcePath);
                 }
                 else
                 {
-                    partialControl = File.ReadAllText(Path.Combine(sourceDir, partialControlPath));
+                    string partialControlPath;
+                    if (!debConfig.TryGetValue("control", out partialControlPath))
+                    {
+                        LogMissingControlPath(log, sourcePath);
+                    }
+                    else
+                    {
+                        partialControl = File.ReadAllText(Path.Combine(sourceDir, partialControlPath));
+                    }
                 }
             }
 
