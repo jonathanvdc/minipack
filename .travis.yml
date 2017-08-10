@@ -46,6 +46,6 @@ deploy:
   file:
     - "${DEB_NAME}"
     - "${ZIP_NAME}"
-  deploy.skip_cleanup: true
+  skip_cleanup: true
   on:
     repo: jonathanvdc/minipack
