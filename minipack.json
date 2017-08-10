@@ -6,10 +6,10 @@
         }
     },
     "files" : [
-        { "src" : "minipack/bin/clr/minipack.exe", "target" : "lib/mono/minipack/minipack.exe" },
-        { "src" : "minipack/bin/clr/*.dll", "target" : "lib/mono/minipack/" }
+        { "src" : "minipack/bin/clr/minipack.exe", "target" : "lib/minipack/minipack.exe" },
+        { "src" : "minipack/bin/clr/*.dll", "target" : "lib/minipack/" }
     ],
     "executables" : [
-        { "name" : "minipack", "environment" : "mono", "file" : "lib/mono/minipack/minipack.exe" }
+        { "name" : "minipack", "environment" : "mono", "file" : "lib/minipack/minipack.exe" }
     ]
 }
