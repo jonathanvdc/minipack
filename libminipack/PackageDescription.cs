@@ -90,18 +90,18 @@ namespace Minipack
         /// directory to the target directory.
         /// </summary>
         /// <param name="sourceDirectory">A path to the source directory.</param>
-        /// <param name="targetDirectoryPath">A path to the target directory.</param>
+        /// <param name="target">A description of the target directory.</param>
         /// <param name="afterCopy">
         /// A callback that is run on the (source path, target path) pair of each copied file.
         /// </param>
         public void CopyFilesToTarget(
             string sourceDirectory,
-            string targetDirectory,
+            TargetDescription target,
             Action<string, string> afterCopy)
         {
             foreach (var file in Files)
             {
-                file.CopyToTarget(sourceDirectory, targetDirectory, afterCopy);
+                file.CopyToTarget(sourceDirectory, target, afterCopy);
             }
         }
 
@@ -110,14 +110,14 @@ namespace Minipack
         /// directory to the target directory.
         /// </summary>
         /// <param name="sourceDirectory">A path to the source directory.</param>
-        /// <param name="targetDirectoryPath">A path to the target directory.</param>
+        /// <param name="target">A description of the target directory.</param>
         public void CopyFilesToTarget(
             string sourceDirectory,
-            string targetDirectory)
+            TargetDescription target)
         {
             foreach (var file in Files)
             {
-                file.CopyToTarget(sourceDirectory, targetDirectory);
+                file.CopyToTarget(sourceDirectory, target);
             }
         }
 

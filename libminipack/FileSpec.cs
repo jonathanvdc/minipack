@@ -99,31 +99,31 @@ namespace Minipack
         /// Copies the source files of this file spec to the target directory.
         /// </summary>
         /// <param name="sourceDirectory">A path to the source directory.</param>
-        /// <param name="targetDirectory">A path to the target directory.</param>
+        /// <param name="target">A description of the target.</param>
         public void CopyToTarget(
             string sourceDirectory,
-            string targetDirectory)
+            TargetDescription target)
         {
-            CopyToTarget(sourceDirectory, targetDirectory, Nop);
+            CopyToTarget(sourceDirectory, target, Nop);
         }
 
         /// <summary>
         /// Copies the source files of this file spec to the target directory.
         /// </summary>
         /// <param name="sourceDirectory">A path to the source directory.</param>
-        /// <param name="targetDirectory">A path to the target directory.</param>
+        /// <param name="target">A description of the target.</param>
         /// <param name="afterCopy">
         /// A callback that is run on the (source path, target path) pair of each copied file.
         /// </param>
         public void CopyToTarget(
             string sourceDirectory,
-            string targetDirectory,
+            TargetDescription target,
             Action<string, string> afterCopy)
         {
             var targetMapping = GetTargetMapping(sourceDirectory);
             foreach (var key in targetMapping.Keys)
             {
-                string targetFilePath = Path.Combine(targetDirectory, targetMapping[key]);
+                string targetFilePath = target.ExpandTargetPath(targetMapping[key]);
                 string targetFileDirPath = Path.GetDirectoryName(targetFilePath);
                 Directory.CreateDirectory(targetFileDirPath);
                 File.Copy(key, targetFilePath, true);

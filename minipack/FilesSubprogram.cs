@@ -69,8 +69,11 @@ namespace Minipack
             string sourceDirectory,
             string targetDirectory)
         {
+            var namedPaths = new Dictionary<string, string>();
+            namedPaths[TargetDescription.ExecutableDirectoryPathName] = ".";
+
             // Copy files to the directory.
-            package.CopyFilesToTarget(sourceDirectory, targetDirectory);
+            package.CopyFilesToTarget(sourceDirectory, new TargetDescription(targetDirectory, namedPaths));
         }
 
         /// <summary>

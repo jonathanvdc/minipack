@@ -128,7 +128,11 @@ namespace Minipack
 
             // Copy files to the usr directory.
             var usrDirectory = Path.Combine(targetDirectory, "usr");
-            package.CopyFilesToTarget(sourceDirectory, usrDirectory, AfterCopyFile);
+
+            var namedPaths = new Dictionary<string, string>();
+            namedPaths[TargetDescription.ExecutableDirectoryPathName] = Path.Combine("lib", package.Name);
+
+            package.CopyFilesToTarget(sourceDirectory, new TargetDescription(usrDirectory, namedPaths), AfterCopyFile);
 
             // Instantiate executables.
             foreach (var exe in package.Executables)

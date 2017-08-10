@@ -38,6 +38,7 @@
     <Compile Include="ExecutableSpec.cs" />
     <Compile Include="FileSpec.cs" />
     <Compile Include="PackageDescription.cs" />
+    <Compile Include="TargetDescription.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
