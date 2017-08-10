@@ -17,7 +17,7 @@ install:
 script:
   # Update these variables when appropriate.
   - export MINIPACK_VERSION=0.1.0
-  - export MINIPACK_REVISION=$TRAVIS_BUILD_NUMBER
+  - export MINIPACK_DEB_REVISION=1
 
   # Restore NuGet packages.
   - nuget restore minipack.sln
@@ -26,10 +26,10 @@ script:
   # Build the project with ecsc.
   - make all
   # Create a deb tree and package it.
-  - export DEB_DIR_NAME=minipack_${MINIPACK_VERSION}-${MINIPACK_REVISION}
+  - export DEB_DIR_NAME=minipack_${MINIPACK_VERSION}-${MINIPACK_DEB_REVISION}
   - export DEB_NAME=${DEB_DIR_NAME}.deb
   - export ZIP_NAME=${DEB_DIR_NAME}.zip
-  - mono ./minipack/bin/clr/minipack.exe deb-tree minipack.json --version $MINIPACK_VERSION --revision $MINIPACK_REVISION -o $DEB_DIR_NAME
+  - mono ./minipack/bin/clr/minipack.exe deb-tree minipack.json --version $MINIPACK_VERSION --revision $MINIPACK_DEB_REVISION -o $DEB_DIR_NAME
   - sudo chown -R root:root $DEB_DIR_NAME
   - dpkg-deb --build $DEB_DIR_NAME
   # Install the deb.
