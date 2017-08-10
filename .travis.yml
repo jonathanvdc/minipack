@@ -1,0 +1,33 @@
+language: csharp
+sudo: true
+
+install:
+  # Clone, build and install ecsc
+  - git clone --depth=5 https://github.com/jonathanvdc/ecsc
+  - nuget restore ecsc/src/ecsc.sln
+  - xbuild /p:Configuration=Release /verbosity:quiet ecsc/src/ecsc.sln
+  - chmod +x $(pwd)/ecsc/src/ecsc/bin/Release/*.exe
+  - chmod +x $(pwd)/ecsc/src/ecsc/bin/Release/*.dll
+  - wget https://gist.githubusercontent.com/jonathanvdc/f2fa3b5f8d5ece27b877fae439d944d0/raw/d021752c2b9c5dfe15393028e308a6ebdcdb613b/mono-ln.sh
+  - chmod +x mono-ln.sh
+  - ./mono-ln.sh ecsc.exe $(pwd)/ecsc/src/ecsc/bin/Release/ecsc
+  - chmod +x $(pwd)/ecsc/src/ecsc/bin/Release/ecsc
+  - export PATH=$PATH:$(pwd)/ecsc/src/ecsc/bin/Release
+
+script:
+  # Restore NuGet packages.
+  - nuget restore minipack.sln
+  # Build the project with msbuild.
+  - msbuild /p:Configuration=Release minipack.sln
+  # Build the project with ecsc.
+  - make all
+  # Create a deb tree and package it.
+  - export MINIPACK_VERSION=0.1.0
+  - export MINIPACK_REVISION=1
+  - mono ./minipack/bin/clr/minipack.exe deb-tree minipack.json --version $MINIPACK_VERSION --revision $MINIPACK_REVISION -o minipack_${MINIPACK_VERSION}-${MINIPACK_REVISION}
+  - find minipack_${MINIPACK_VERSION}-${MINIPACK_REVISION}/usr | xargs sudo chown root:root
+  - dpkg-deb --build minipack_${MINIPACK_VERSION}-${MINIPACK_REVISION}
+  # Install the deb.
+  - sudo dpkg -i minipack_${MINIPACK_VERSION}-${MINIPACK_REVISION}.deb
+  # Create a zippable directory.
+  - minipack files minipack.json -o minipack-bin
