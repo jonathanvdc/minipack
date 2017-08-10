@@ -18,7 +18,7 @@ namespace Minipack
         { }
 
         /// <summary>
-        /// An instance of a debian-source subprogram.
+        /// An instance of a debian-tree subprogram.
         /// </summary>
         public static readonly DebTreeSubprogram Instance = new DebTreeSubprogram();
 
@@ -37,7 +37,7 @@ namespace Minipack
 
             if (options.SourcePaths.Length != 1)
             {
-                LogInvalidSourcePathArity(log, options.SourcePaths.Length);
+                FilesSubprogram.LogInvalidSourcePathArity(log, options.SourcePaths.Length);
                 return;
             }
 
@@ -224,26 +224,6 @@ namespace Minipack
                     string.Format(
                         "the mandatory '{0}' option is missing.",
                         optionName)));
-        }
-
-        private static void LogInvalidSourcePathArity(ICompilerLog log, int arity)
-        {
-            if (arity > 1)
-            {
-                log.LogError(
-                    new LogEntry(
-                        "too many input files",
-                        string.Format(
-                            "exactly one input file was expected, but {0} were provided.",
-                            arity)));
-            }
-            else
-            {
-                log.LogError(
-                    new LogEntry(
-                        "no input file",
-                        "exactly one input file must be provided."));
-            }
         }
 
         private static void LogMissingDebTarget(ICompilerLog log, string sourcePath)

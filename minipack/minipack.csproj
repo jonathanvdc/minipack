@@ -127,6 +127,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DebTreeSubprogram.cs" />
+    <Compile Include="FilesSubprogram.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Subprogram.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

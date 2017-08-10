@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Flame.Compiler;
 using Flame.Front;
 using Flame.Front.Cli;
@@ -49,6 +50,7 @@ namespace Minipack
         private static readonly Dictionary<string, Subprogram> subprograms =
             new Dictionary<string, Subprogram>()
         {
+            { "files", FilesSubprogram.Instance },
             { "deb-tree", DebTreeSubprogram.Instance }
         };
 
