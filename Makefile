@@ -22,3 +22,7 @@ flo:
 clean:
 	make -C libminipack clean
 	make -C minipack clean
+
+.PHONY: install
+install: exe
+	mono ./minipack/bin/clr/minipack.exe deb-tree minipack.json --version $(MINIPACK_VERSION) --revision $(MINIPACK_REVISION) -fno-include-control -o $(DESTDIR)
