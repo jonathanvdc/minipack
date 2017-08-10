@@ -49,7 +49,7 @@ namespace Minipack
         private static readonly Dictionary<string, Subprogram> subprograms =
             new Dictionary<string, Subprogram>()
         {
-            { "deb-source", DebSourceSubprogram.Instance }
+            { "deb-tree", DebTreeSubprogram.Instance }
         };
 
         private static void ReportNoInput(ConsoleLog log)
@@ -80,12 +80,12 @@ namespace Minipack
                                 pair.Key),
 
                             new MarkupNode(
-                                NodeConstants.DimNodeType,
-                                " " + pair.Value.Usage),
+                                NodeConstants.TextNodeType,
+                                " -- " + pair.Value.Description),
 
                             new MarkupNode(
                                 NodeConstants.TextNodeType,
-                                " -- " + pair.Value.Description)
+                                Environment.NewLine + "    usage: minipack " + pair.Key + " " + pair.Value.Usage),
                         }));
             }
             var subprogList = ListExtensions.Instance.CreateList(listItems);

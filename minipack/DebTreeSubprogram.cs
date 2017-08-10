@@ -12,21 +12,21 @@ namespace Minipack
     /// <summary>
     /// A subprogram that creates a directory tree which can be packaged into a .deb by dpkg-deb.
     /// </summary>
-    public sealed class DebSourceSubprogram : Subprogram
+    public sealed class DebTreeSubprogram : Subprogram
     {
-        private DebSourceSubprogram()
+        private DebTreeSubprogram()
         { }
 
         /// <summary>
         /// An instance of a debian-source subprogram.
         /// </summary>
-        public static readonly DebSourceSubprogram Instance = new DebSourceSubprogram();
+        public static readonly DebTreeSubprogram Instance = new DebTreeSubprogram();
 
         /// <inheritdoc/>
         public override string Description => "Creates a directory tree that can be packaged into a .deb by dpkg-deb.";
 
         /// <inheritdoc/>
-        public override string Usage => "minipack.json --version x.x.x.x --revision xxxx -o output-dir";
+        public override string Usage => "minipack.json --version x.x.x.x --revision xxxx [--source-dir /path/to/source/] [-o /path/to/output/]";
 
         /// <inheritdoc/>
         public override void Run(IReadOnlyList<string> args, ICompilerLog log)
@@ -119,7 +119,7 @@ namespace Minipack
 
             // Copy files to the usr directory.
             var usrDirectory = Path.Combine(targetDirectory, "usr");
-            package.CopyFilesToTarget(sourceDirectory, usrDirectory);
+            package.CopyFilesToTarget(sourceDirectory, usrDirectory, AfterCopyFile);
 
             // Instantiate executables.
             foreach (var exe in package.Executables)
@@ -177,10 +177,31 @@ namespace Minipack
             MakeExecutable(scriptPath);
         }
 
+        private static void AfterCopyFile(string sourcePath, string targetPath)
+        {
+            if (Path.GetExtension(targetPath).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+            {
+                MakeExecutable(targetPath);
+            }
+            else
+            {
+                MakeNonExecutable(targetPath);
+            }
+        }
+
         private static void MakeExecutable(string path)
         {
-            var processDesc = new ProcessStartInfo("chmod", "+x " + Path.GetFullPath(path));
-            processDesc.RedirectStandardError = true;
+            Chmod(path, "+x");
+        }
+
+        private static void MakeNonExecutable(string path)
+        {
+            Chmod(path, "-x");
+        }
+
+        private static void Chmod(string path, string options)
+        {
+            var processDesc = new ProcessStartInfo("chmod", options + " " + Path.GetFullPath(path));
             processDesc.UseShellExecute = false;
             var process = Process.Start(processDesc);
             process.WaitForExit();
