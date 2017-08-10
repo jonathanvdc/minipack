@@ -49,3 +49,4 @@ deploy:
   skip_cleanup: true
   on:
     repo: jonathanvdc/minipack
+    tags: true
