@@ -130,6 +130,7 @@
     <Compile Include="FilesSubprogram.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Subprogram.cs" />
+    <Compile Include="UnixInstallSubprogram.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

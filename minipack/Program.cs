@@ -51,7 +51,8 @@ namespace Minipack
             new Dictionary<string, Subprogram>()
         {
             { "files", FilesSubprogram.Instance },
-            { "deb-tree", DebTreeSubprogram.Instance }
+            { "deb-tree", DebTreeSubprogram.Instance },
+            { "unix-install", UnixInstallSubprogram.Instance }
         };
 
         private static void ReportNoInput(ConsoleLog log)
