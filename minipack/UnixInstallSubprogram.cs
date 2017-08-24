@@ -122,12 +122,12 @@ namespace Minipack
             // a script looks like this:
             //
             //     #!/bin/sh
-            //     exec /usr/bin/mono $MONO_OPTIONS /usr/file-path "$@"
+            //     exec mono $MONO_OPTIONS /usr/file-path "$@"
             //
 
             var script = new StringBuilder();
             script.Append("#!/bin/sh\n");
-            script.Append("exec /usr/bin/mono $MONO_OPTIONS /");
+            script.Append("exec mono $MONO_OPTIONS /");
             script.Append(Path.Combine("usr", targetDesc.ExpandTargetPathRelative(spec.File)));
             script.Append(" \"$@\"\n");
 
