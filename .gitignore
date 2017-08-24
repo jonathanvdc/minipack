@@ -19,3 +19,6 @@ bin/
 
 # 'packages' folder
 packages/
+
+# Output snaps
+*.snap

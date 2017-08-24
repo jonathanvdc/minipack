@@ -1,7 +1,13 @@
 language: csharp
-sudo: true
+sudo: required
+
+services:
+  - docker
 
 install:
+  # Install snapd.
+  - sudo apt install snapd
+
   # Clone, build and install ecsc
   - git clone --depth=5 https://github.com/jonathanvdc/ecsc
   - nuget restore ecsc/src/ecsc.sln
@@ -25,13 +31,28 @@ script:
   - msbuild /p:Configuration=Release minipack.sln
   # Build the project with ecsc.
   - make all
+
+  # Create a snap.
+  - docker run -v $(pwd):$(pwd) -t snapcore/snapcraft sh -c
+      "apt update -qq && cd $(pwd) &&
+      snapcraft"
+
+  # Install the snap.
+  - sudo snap install hello_0.1_amd64.snap --dangerous
+  - alias minipack="snap run minipack"
+
   # Create a deb tree and package it.
   - export DEB_DIR_NAME=minipack_${MINIPACK_VERSION}-${MINIPACK_DEB_REVISION}
   - export DEB_NAME=${DEB_DIR_NAME}.deb
   - export ZIP_NAME=${DEB_DIR_NAME}.zip
-  - mono ./minipack/bin/clr/minipack.exe deb-tree minipack.json --version $MINIPACK_VERSION --revision $MINIPACK_DEB_REVISION -o $DEB_DIR_NAME
+  - minipack deb-tree minipack.json --version $MINIPACK_VERSION --revision $MINIPACK_DEB_REVISION -o $DEB_DIR_NAME
   - sudo chown -R root:root $DEB_DIR_NAME
   - dpkg-deb --build $DEB_DIR_NAME
+
+  # Uninstall the snap before installing the deb.
+  - unalias minipack
+  - sudo snap remove minipack
+
   # Install the deb.
   - sudo dpkg -i $DEB_NAME
   # Create a zippable directory.

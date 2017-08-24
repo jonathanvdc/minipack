@@ -25,4 +25,4 @@ clean:
 
 .PHONY: install
 install: exe
-	mono ./minipack/bin/clr/minipack.exe deb-tree minipack.json --version $(MINIPACK_VERSION) --revision $(MINIPACK_REVISION) -fno-include-control -o $(DESTDIR)
+	mono ./minipack/bin/clr/minipack.exe unix-install minipack.json -o $(DESTDIR)/usr/

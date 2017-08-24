@@ -1,0 +1,36 @@
+name: minipack
+version: '0.1' # just for humans, typically '1.2+git' or '1.3.2'
+summary: Tool to automate and simplify CLI app packaging # 79 char long summary
+description: |
+  minipack is a command-line utility that streamlines app packaging by
+  creating file trees from a JSON spec. Use cases for minipack include
+  creating a zip file containing all executables and libraries, as well as
+  implementing the `make install` step that snap and deb packages depend on.
+
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: strict
+
+apps:
+  minipack:
+    command: sh $SNAP/usr/bin/mono-wrapper $SNAP/usr/bin/minipack
+    plugs:
+      - home
+
+parts:
+  minipack:
+    stage-packages:
+      - libmono-system4.0-cil
+      - libmono-system-core4.0-cil
+      - mono-runtime
+    build-packages:
+      - build-essential
+      - pkg-config
+      - cli-common-dev
+      - mono-devel
+    plugin: make
+
+  wrapper:
+    plugin: dump
+    source: packaging/snap
+    organize:
+      mono-wrapper: usr/bin/mono-wrapper
