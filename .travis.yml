@@ -38,7 +38,8 @@ script:
       snapcraft"
 
   # Install the snap.
-  - sudo snap install minipack_0.1_amd64.snap --dangerous
+  - export SNAP_NAME=minipack_${MINIPACK_VERSION}_amd64.snap
+  - sudo snap install ${SNAP_NAME} --dangerous
 
   # Create a deb tree and package it.
   - export DEB_DIR_NAME=minipack_${MINIPACK_VERSION}-${MINIPACK_DEB_REVISION}
@@ -65,6 +66,7 @@ deploy:
   file:
     - "${DEB_NAME}"
     - "${ZIP_NAME}"
+    - "${SNAP_NAME}"
   skip_cleanup: true
   on:
     repo: jonathanvdc/minipack
