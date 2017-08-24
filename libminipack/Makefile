@@ -1,3 +1,5 @@
+include ../use-ecsc.mk
+
 files = \
 	*.cs \
 	Properties/*.cs
@@ -17,7 +19,7 @@ clean:
 	rm -rf obj/
 
 bin/clr/libminipack.dll: $(files)
-	ecsc $(files) -platform clr --libs $(libs) -o $@ -O3 $(common_options)
+	$(ECSC) $(files) -platform clr --libs $(libs) -o $@ -O3 $(common_options)
 
 bin/flo/libminipack.flo: $(files)
-	ecsc $(files) -platform ir -runtime clr --libs $(libs) -o $@ $(common_options)
+	$(ECSC) $(files) -platform ir -runtime clr --libs $(libs) -o $@ $(common_options)
