@@ -39,18 +39,16 @@ script:
 
   # Install the snap.
   - sudo snap install minipack_0.1_amd64.snap --dangerous
-  - alias minipack="snap run minipack"
 
   # Create a deb tree and package it.
   - export DEB_DIR_NAME=minipack_${MINIPACK_VERSION}-${MINIPACK_DEB_REVISION}
   - export DEB_NAME=${DEB_DIR_NAME}.deb
   - export ZIP_NAME=${DEB_DIR_NAME}.zip
-  - minipack deb-tree minipack.json --version $MINIPACK_VERSION --revision $MINIPACK_DEB_REVISION -o $DEB_DIR_NAME
+  - snap run minipack deb-tree minipack.json --version $MINIPACK_VERSION --revision $MINIPACK_DEB_REVISION -o $DEB_DIR_NAME
   - sudo chown -R root:root $DEB_DIR_NAME
   - dpkg-deb --build $DEB_DIR_NAME
 
   # Uninstall the snap before installing the deb.
-  - unalias minipack
   - sudo snap remove minipack
 
   # Install the deb.
