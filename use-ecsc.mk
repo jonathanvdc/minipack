@@ -19,32 +19,25 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 ifeq ($(ECSC),)
 ifneq ($(wildcard $(ROOT_DIR)/ecsc/src/ecsc/bin/Release/ecsc.exe),)
 # If we have a local ecsc install, then we'll use that.
-ECSC_BUILD_OUTPUT=
-ECSC_PREINSTALLED=true
 ECSC=mono $(ROOT_DIR)/ecsc/src/ecsc/bin/Release/ecsc.exe
 else
 ifneq ($(shell which ecsc),)
 # If ecsc is installed globally, then that's fine too.
-ECSC_BUILD_OUTPUT=
-ECSC_PREINSTALLED=true
 ECSC=ecsc
 else
 # Otherwise, we'll install ecsc locally.
-ECSC_BUILD_OUTPUT=$(shell \
+ECSC_BUILD_COMMAND= \
 	cd $(ROOT_DIR); \
 	if [ ! -d ecsc ]; then \
 		git clone --depth=5 https://github.com/jonathanvdc/ecsc; \
 	fi; \
 	nuget restore ecsc/src/ecsc.sln; \
 	msbuild /p:Configuration=Release /verbosity:quiet ecsc/src/ecsc.sln; \
-	cd $(CUR_DIR))
+	cd $(CUR_DIR)
 ECSC=mono $(ROOT_DIR)/ecsc/src/ecsc/bin/Release/ecsc.exe
 endif
 endif
 endif
 
 .PHONY: ecsc
-ecsc: ;
-ifndef ECSC_PREINSTALLED
-	$(info $(ECSC_BUILD_OUTPUT))
-endif
+ecsc: ; $(ECSC_BUILD_COMMAND)
