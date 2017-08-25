@@ -25,6 +25,6 @@ clean:
 
 .PHONY: install
 install: exe
-	mono ./minipack/bin/clr/minipack.exe unix-install minipack.json -o "$(DESTDIR)/usr/" --fs-root "$(FS_ROOT)/"
+	mono ./minipack/bin/clr/minipack.exe unix-install minipack.json -o "$(DESTDIR)/usr/" $(INSTALL_OPTIONS)
 
 include use-ecsc.mk

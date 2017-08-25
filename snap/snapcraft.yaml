@@ -29,7 +29,7 @@ parts:
       - mono-devel
     plugin: make
     make-parameters:
-      - FS_ROOT="\$\$SNAP"
+      - INSTALL_OPTIONS="--fs-root-var SNAP"
 
   wrapper:
     plugin: dump

@@ -60,7 +60,15 @@ namespace Minipack
             string fileSystemRoot = options.GetOption<string>("fs-root", null);
             if (string.IsNullOrWhiteSpace(sourceDir))
             {
-                fileSystemRoot = "/";
+                string fileSystemRootVar = options.GetOption<string>("fs-root-var", null);
+                if (string.IsNullOrWhiteSpace(fileSystemRootVar))
+                {
+                    fileSystemRoot = "/";
+                }
+                else
+                {
+                    fileSystemRoot = "${" + fileSystemRootVar + "}/";
+                }
             }
 
             Install(
