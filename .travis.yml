@@ -27,6 +27,7 @@ script:
 
   # Install the snap.
   - export SNAP_NAME=minipack_${MINIPACK_VERSION}_amd64.snap
+  - sudo snap install core
   - sudo snap install ${SNAP_NAME} --dangerous --classic
 
   # Create a deb tree and package it.
