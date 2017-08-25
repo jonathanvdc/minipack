@@ -8,13 +8,11 @@ description: |
   implementing the `make install` step that snap and deb packages depend on.
 
 grade: devel # must be 'stable' to release into candidate/stable channels
-confinement: strict
+confinement: classic
 
 apps:
   minipack:
     command: sh $SNAP/usr/bin/mono-wrapper $SNAP/usr/bin/minipack
-    plugs:
-      - home
 
 parts:
   minipack:
@@ -23,6 +21,7 @@ parts:
       - libmono-system-core4.0-cil
       - libmono-system-numerics4.0-cil
       - libmono-system-runtime-serialization4.0-cil
+      - libmono-system-data4.0-cil
       - mono-runtime
     build-packages:
       - build-essential

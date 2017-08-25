@@ -27,7 +27,7 @@ script:
 
   # Install the snap.
   - export SNAP_NAME=minipack_${MINIPACK_VERSION}_amd64.snap
-  - sudo snap install ${SNAP_NAME} --dangerous
+  - sudo snap install ${SNAP_NAME} --dangerous --classic
 
   # Create a deb tree and package it.
   - export DEB_DIR_NAME=minipack_${MINIPACK_VERSION}-${MINIPACK_DEB_REVISION}
