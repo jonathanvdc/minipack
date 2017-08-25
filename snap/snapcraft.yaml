@@ -29,7 +29,7 @@ parts:
       - mono-devel
     plugin: make
     make-parameters:
-      - FS_ROOT=\$SNAP
+      - FS_ROOT="\$\$SNAP"
 
   wrapper:
     plugin: dump
