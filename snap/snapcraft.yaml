@@ -22,6 +22,7 @@ parts:
       - libmono-system4.0-cil
       - libmono-system-core4.0-cil
       - libmono-system-numerics4.0-cil
+      - libmono-system-runtime-serialization4.0-cil
       - mono-runtime
     build-packages:
       - build-essential
