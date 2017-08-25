@@ -23,11 +23,10 @@ script:
   # Create a snap.
   - docker run -v $(pwd):$(pwd) -t snapcore/snapcraft sh -c
       "apt update -qq && cd $(pwd) &&
-      snapcraft"
+      snap install core && snapcraft"
 
   # Install the snap.
   - export SNAP_NAME=minipack_${MINIPACK_VERSION}_amd64.snap
-  - sudo snap install core
   - sudo snap install ${SNAP_NAME} --dangerous --classic
 
   # Create a deb tree and package it.
