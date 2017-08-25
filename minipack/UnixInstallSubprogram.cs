@@ -57,11 +57,18 @@ namespace Minipack
                 sourceDir = Environment.CurrentDirectory;
             }
 
+            string fileSystemRoot = options.GetOption<string>("fs-root", null);
+            if (string.IsNullOrWhiteSpace(sourceDir))
+            {
+                fileSystemRoot = "/";
+            }
+
             Install(
                 log,
                 packageDesc,
                 sourceDir,
-                outputDir);
+                outputDir,
+                fileSystemRoot);
         }
 
         /// <summary>
@@ -71,11 +78,15 @@ namespace Minipack
         /// <param name="package">A description of the package to install.</param>
         /// <param name="sourceDirectory">A path to the directory that contains the package's source files.</param>
         /// <param name="targetDirectory">A path to the directory that contains the package's target files.</param>
+        /// <param name="fileSystemRoot">
+        /// A path to root directory of the file system in which the package is eventually installed.
+        /// </param>
         public static void Install(
             ICompilerLog log,
             PackageDescription package,
             string sourceDirectory,
-            string targetDirectory)
+            string targetDirectory,
+            string fileSystemRoot)
         {
             var namedPaths = new Dictionary<string, string>();
             namedPaths[TargetDescription.ExecutableDirectoryPathName] = Path.Combine("lib", package.Name);
@@ -87,22 +98,26 @@ namespace Minipack
             // Instantiate executables.
             foreach (var exe in package.Executables)
             {
-                InstantiateExecutable(log, exe, sourceDirectory, targetDesc);
+                InstantiateExecutable(log, exe, sourceDirectory, fileSystemRoot, targetDesc);
             }
         }
 
-        private static readonly Dictionary<string, Action<ICompilerLog, ExecutableSpec, string, TargetDescription>> executableHandlers =
-            new Dictionary<string, Action<ICompilerLog, ExecutableSpec, string, TargetDescription>>(StringComparer.OrdinalIgnoreCase)
+        private static readonly Dictionary<string, Action<ICompilerLog, ExecutableSpec, string, string, TargetDescription>> executableHandlers =
+            new Dictionary<string, Action<ICompilerLog, ExecutableSpec, string, string, TargetDescription>>(StringComparer.OrdinalIgnoreCase)
         {
             { "mono", InstantiateMonoExecutable }
         };
 
         private static void InstantiateExecutable(
-            ICompilerLog log, ExecutableSpec spec, string sourceDirectory, TargetDescription targetDesc)
+            ICompilerLog log,
+            ExecutableSpec spec,
+            string sourceDirectory,
+            string fileSystemRoot,
+            TargetDescription targetDesc)
         {
             if (executableHandlers.ContainsKey(spec.Environment))
             {
-                executableHandlers[spec.Environment](log, spec, sourceDirectory, targetDesc);
+                executableHandlers[spec.Environment](log, spec, sourceDirectory, fileSystemRoot, targetDesc);
             }
             else
             {
@@ -116,18 +131,25 @@ namespace Minipack
         }
 
         private static void InstantiateMonoExecutable(
-            ICompilerLog log, ExecutableSpec spec, string sourceDirectory, TargetDescription targetDesc)
+            ICompilerLog log,
+            ExecutableSpec spec,
+            string sourceDirectory,
+            string fileSystemRoot,
+            TargetDescription targetDesc)
         {
             // We can run safely mono executables by generating a wrapper script. Such
             // a script looks like this:
             //
             //     #!/bin/sh
-            //     exec mono $MONO_OPTIONS /usr/file-path "$@"
+            //     exec $(fs-root)usr/bin/mono $MONO_OPTIONS $(fs-root)usr/file-path "$@"
             //
 
             var script = new StringBuilder();
             script.Append("#!/bin/sh\n");
-            script.Append("exec mono $MONO_OPTIONS /");
+            script.Append("exec ");
+            script.Append(fileSystemRoot);
+            script.Append("usr/bin/mono $MONO_OPTIONS ");
+            script.Append(fileSystemRoot);
             script.Append(Path.Combine("usr", targetDesc.ExpandTargetPathRelative(spec.File)));
             script.Append(" \"$@\"\n");
 

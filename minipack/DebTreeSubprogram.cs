@@ -128,7 +128,7 @@ namespace Minipack
 
             // Copy files to the usr directory.
             var usrDirectory = Path.Combine(targetDirectory, "usr");
-            UnixInstallSubprogram.Install(log, package, sourceDirectory, usrDirectory);
+            UnixInstallSubprogram.Install(log, package, sourceDirectory, usrDirectory, "/");
         }
 
         private static void LogMissingMandatoryOption(ICompilerLog log, string optionName)
