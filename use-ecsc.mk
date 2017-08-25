@@ -19,7 +19,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 ifeq ($(ECSC),)
 ifneq ($(wildcard $(ROOT_DIR)/ecsc/src/ecsc/bin/Release/ecsc.exe),)
 # If we have a local ecsc install, then we'll use that.
-ECSC=mono $(ROOT_DIR)/ecsc/src/ecsc/bin/Release/ecsc.exe
+ECSC=mono "$(ROOT_DIR)/ecsc/src/ecsc/bin/Release/ecsc.exe"
 else
 ifneq ($(shell which ecsc),)
 # If ecsc is installed globally, then that's fine too.
@@ -27,13 +27,12 @@ ECSC=ecsc
 else
 # Otherwise, we'll install ecsc locally.
 ECSC_BUILD_COMMAND= \
-	cd $(ROOT_DIR); \
+	cd "$(ROOT_DIR)"; \
 	if [ ! -d ecsc ]; then \
 		git clone --depth=5 https://github.com/jonathanvdc/ecsc; \
 	fi; \
 	nuget restore ecsc/src/ecsc.sln; \
-	msbuild /p:Configuration=Release /verbosity:quiet ecsc/src/ecsc.sln; \
-	cd $(CUR_DIR)
+	msbuild /p:Configuration=Release /verbosity:quiet ecsc/src/ecsc.sln;
 ECSC=mono $(ROOT_DIR)/ecsc/src/ecsc/bin/Release/ecsc.exe
 endif
 endif
