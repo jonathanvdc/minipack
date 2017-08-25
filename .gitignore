@@ -22,3 +22,6 @@ packages/
 
 # Output snaps
 *.snap
+
+# Local ecsc install
+ecsc/

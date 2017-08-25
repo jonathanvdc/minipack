@@ -18,8 +18,8 @@ clean:
 	rm -rf bin/
 	rm -rf obj/
 
-bin/clr/libminipack.dll: $(files)
+bin/clr/libminipack.dll: $(files) | ecsc
 	$(ECSC) $(files) -platform clr --libs $(libs) -o $@ -O3 $(common_options)
 
-bin/flo/libminipack.flo: $(files)
+bin/flo/libminipack.flo: $(files) | ecsc
 	$(ECSC) $(files) -platform ir -runtime clr --libs $(libs) -o $@ $(common_options)
