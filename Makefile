@@ -1,5 +1,3 @@
-include use-ecsc.mk
-
 .PHONY: exe
 exe:
 	make -C libminipack flo
@@ -19,6 +17,8 @@ dll:
 flo:
 	make -C libminipack flo
 	make -C minipack flo
+
+include use-ecsc.mk
 
 .PHONY: clean
 clean: clean-ecsc
