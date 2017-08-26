@@ -1,13 +1,6 @@
 language: csharp
 sudo: required
 
-services:
-  - docker
-
-install:
-  # Install snapd.
-  - sudo apt install snapd
-
 script:
   # Update these variables when appropriate.
   - export MINIPACK_VERSION=0.1.0
@@ -20,28 +13,13 @@ script:
   # Build the project with ecsc.
   - make all
 
-  # Install the core snap.
-  - sudo snap install core
-
-  # Create a snap.
-  - docker run -v $(pwd):$(pwd) -t snapcore/snapcraft sh -c
-      "apt update -qq && cd $(pwd) &&
-      snapcraft"
-
-  # Install the snap.
-  - export SNAP_NAME=minipack_${MINIPACK_VERSION}_amd64.snap
-  - sudo snap install ${SNAP_NAME} --dangerous --classic
-
   # Create a deb tree and package it.
   - export DEB_DIR_NAME=minipack_${MINIPACK_VERSION}-${MINIPACK_DEB_REVISION}
   - export DEB_NAME=${DEB_DIR_NAME}.deb
   - export ZIP_NAME=${DEB_DIR_NAME}.zip
-  - snap run minipack deb-tree minipack.json --version $MINIPACK_VERSION --revision $MINIPACK_DEB_REVISION -o $DEB_DIR_NAME
+  - mono ./minipack/bin/clr/minipack.exe deb-tree minipack.json --version $MINIPACK_VERSION --revision $MINIPACK_DEB_REVISION -o $DEB_DIR_NAME
   - sudo chown -R root:root $DEB_DIR_NAME
   - dpkg-deb --build $DEB_DIR_NAME
-
-  # Uninstall the snap before installing the deb.
-  - sudo snap remove minipack
 
   # Install the deb.
   - sudo dpkg -i $DEB_NAME
@@ -57,7 +35,6 @@ deploy:
   file:
     - "${DEB_NAME}"
     - "${ZIP_NAME}"
-    - "${SNAP_NAME}"
   skip_cleanup: true
   on:
     repo: jonathanvdc/minipack
