@@ -20,10 +20,13 @@ script:
   # Build the project with ecsc.
   - make all
 
+  # Install the core snap.
+  - sudo snap install core
+
   # Create a snap.
   - docker run -v $(pwd):$(pwd) -t snapcore/snapcraft sh -c
       "apt update -qq && cd $(pwd) &&
-      snap install core && snapcraft"
+      snapcraft"
 
   # Install the snap.
   - export SNAP_NAME=minipack_${MINIPACK_VERSION}_amd64.snap
