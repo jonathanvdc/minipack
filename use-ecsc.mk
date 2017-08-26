@@ -13,6 +13,16 @@
 #     out.exe: code.cs | ecsc
 #         $(ECSC) code.cs -platform clr -o out.exe
 #
+# You may also want to extend your 'make clean' target by adding
+# a dependency on 'clean-ecsc'. That'll ensure that a local 'ecsc'
+# install is deleted when 'make clean' is run.
+#
+#     include /path/to/use-ecsc.mk
+#
+#     .PHONY: clean
+#     clean: clean-ecsc
+#         ...
+#
 
 ECSC_GIT_REPO:=https://github.com/jonathanvdc/ecsc
 
@@ -33,6 +43,7 @@ ECSC=mono "$(LOCAL_ECSC_EXE)"
 else
 ifneq ($(shell which ecsc),)
 # If ecsc is installed globally, then that's fine too.
+ECSC_DEPENDENCIES=
 ECSC=ecsc
 else
 # Otherwise, we'll install ecsc locally.
