@@ -24,4 +24,4 @@ packages/
 *.snap
 
 # Local ecsc install
-ecsc/
+toolchain/

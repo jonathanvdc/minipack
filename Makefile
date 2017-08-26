@@ -18,13 +18,13 @@ flo:
 	make -C libminipack flo
 	make -C minipack flo
 
+include use-ecsc.mk
+
 .PHONY: clean
-clean:
+clean: clean-ecsc
 	make -C libminipack clean
 	make -C minipack clean
 
 .PHONY: install
 install: exe
 	mono ./minipack/bin/clr/minipack.exe unix-install minipack.json -o "$(DESTDIR)/usr/" $(INSTALL_OPTIONS)
-
-include use-ecsc.mk

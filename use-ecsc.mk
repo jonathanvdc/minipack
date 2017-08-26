@@ -14,29 +14,54 @@
 #         $(ECSC) code.cs -platform clr -o out.exe
 #
 
-ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+ECSC_GIT_REPO:=https://github.com/jonathanvdc/ecsc
 
+ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
+TOOLCHAIN_DIR:=$(ROOT_DIR)/toolchain
+LOCAL_ECSC_DIR:=$(TOOLCHAIN_DIR)/ecsc
+LOCAL_ECSC_SLN:=$(LOCAL_ECSC_DIR)/src/ecsc.sln
+LOCAL_ECSC_EXE:=$(LOCAL_ECSC_DIR)/src/ecsc/bin/Release/ecsc.exe
+
+# Only try to define ECSC if it hasn't been defined already.
+# A user might want to set ECSC explicitly from the command-line
+# or an environment variable and we should respect that.
 ifeq ($(ECSC),)
-ifneq ($(wildcard $(ROOT_DIR)/ecsc/src/ecsc/bin/Release/ecsc.exe),)
+ifneq ($(wildcard $(LOCAL_ECSC_EXE)),)
 # If we have a local ecsc install, then we'll use that.
-ECSC=mono "$(ROOT_DIR)/ecsc/src/ecsc/bin/Release/ecsc.exe"
+ECSC_DEPENDENCIES=local-ecsc
+ECSC=mono "$(LOCAL_ECSC_EXE)"
 else
 ifneq ($(shell which ecsc),)
 # If ecsc is installed globally, then that's fine too.
 ECSC=ecsc
 else
 # Otherwise, we'll install ecsc locally.
-ECSC_BUILD_COMMAND= \
-	cd "$(ROOT_DIR)"; \
-	if [ ! -d ecsc ]; then \
-		git clone --depth=5 https://github.com/jonathanvdc/ecsc; \
-	fi; \
-	nuget restore ecsc/src/ecsc.sln; \
-	msbuild /p:Configuration=Release /verbosity:quiet ecsc/src/ecsc.sln;
-ECSC=mono $(ROOT_DIR)/ecsc/src/ecsc/bin/Release/ecsc.exe
+ECSC_DEPENDENCIES=local-ecsc
+ECSC=mono "$(LOCAL_ECSC_EXE)"
 endif
 endif
 endif
 
+# 'ecsc' uses a global ecsc command if possible and installs a local
+# copy of ecsc if necessary.
 .PHONY: ecsc
-ecsc: ; $(ECSC_BUILD_COMMAND)
+ecsc: $(ECSC_DEPENDENCIES)
+
+# 'local-ecsc' explicitly installs a local copy of ecsc.
+.PHONY: local-ecsc
+local-ecsc: $(LOCAL_ECSC_EXE)
+
+$(LOCAL_ECSC_EXE):
+	cd "$(ROOT_DIR)"
+	if [ ! -d "$(LOCAL_ECSC_DIR)" ]; then \
+		git clone --depth=1 $(ECSC_GIT_REPO) "$(LOCAL_ECSC_DIR)"; \
+	fi
+	nuget restore "$(LOCAL_ECSC_SLN)" -Verbosity quiet
+	msbuild /p:Configuration=Release /verbosity:quiet /nologo "$(LOCAL_ECSC_SLN)"
+
+# 'clean-ecsc' deletes a local copy of ecsc, if one has been created.
+.PHONY: clean-ecsc
+clean-ecsc:
+ifneq ($(wildcard $(LOCAL_ECSC_DIR)),)
+	rm -rf "$(LOCAL_ECSC_DIR)"
+endif
