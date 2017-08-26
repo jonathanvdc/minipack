@@ -4,9 +4,9 @@
 # runs ecsc.
 #
 # Rules depending on the 'ecsc' target defined by this file should
-# use an order-only dependency. Here's some example usage. (use a
+# use an order-only dependency. Here's some example usage. Use a
 # tab for indentation instead of spaces if you include this in a
-# makefile).
+# makefile.
 #
 #     include /path/to/use-ecsc.mk
 #
